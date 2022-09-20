@@ -7,7 +7,7 @@ J-format: op(6-bits), address (26-bit)
 I-format: op(6-bits), rs(5-bits), rt(5-bits), immediate(16-bit)
 */
 
-module parameters;
+module parameters();
 //opcodes
 		//R-Type
 		parameter R_opcode = 0;

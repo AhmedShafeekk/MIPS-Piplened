@@ -5,20 +5,19 @@ module Data_Mem( ReadData, Address, WriteData, MemRead, MemWrite,clk);
 		input MemRead, MemWrite,clk;
 		input [31:0] Address, WriteData;
 		
-		reg [31:0] Data_MEM [1023:0];
+		reg [31:0] Data_MEM [10:0];
 		
 		always @(posedge clk)
 			begin
 				if (MemWrite)
 					Data_MEM[Address]<=WriteData;	
-			end
-			
-		always @(posedge clk)
-			begin
-				if (MemRead)
-					ReadData <= Data_MEM[Address];
-				else 
-					ReadData<= {32 * {1 'b Z} };
+				else
+				 begin
+					if (MemRead)
+						ReadData <= Data_MEM[Address];
+					else 
+						ReadData<= 32'b ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ;	
+				 end
 			end
 			
 endmodule

@@ -3,8 +3,7 @@
 module MIPS(clk,reset);
 		 input clk,reset;
 		 
-		 wire [31:0] pc_in, pc_out, pc_next; // pc_in: new, pc_out: current, pc_next = pc+ 4
-		 assign pc_next = pc_out + 4;
+		 wire [31:0] pc_in, pc_out, pc_next; // pc_in: new whether B,J or pc_next, pc_out: current, pc_next = pc+ 4
 		 
 		 wire [31:0] IR;
 		 wire [5:0] opcode,funct;
@@ -25,7 +24,7 @@ module MIPS(clk,reset);
 		 assign I_imm_sign_extend = {16*{I_imm[15]}, I_imm};
 		 assign I_imm_zero_extend = I_imm<<16;
 		 assign J_imm_address = {{J_imm<<2} , {pc_next[31:28]}};
-		 wire [4:0] rt_td_mux;
+		 wire [4:0] rt_rd_mux;
 		 
 		 wire [31:0] ReadData1, ReadData2;
 		 wire RegDst, J, Beq,Bneq, MemRead, MemtoReg,MemWrite,RegWrite;
@@ -41,6 +40,7 @@ module MIPS(clk,reset);
 		 assign ALU_A = ReadData1;
 		 assign ALU_B = Reg_ALU_mux2_out;
 		 
+		 wire [31:0] B_PC_ADD_out;
 		 wire [31:0] B_mux_out, J_mux_out; 
 		 wire B_sel;
 		 assign B_sel = (Beq & ALU_Zero) | (Bneq & (~(ALU_Zero)));
@@ -49,10 +49,11 @@ module MIPS(clk,reset);
 		 wire [31:0] D_Mem_ALU_mux_out;
 		 
 		 
-		 PC pc(.PC_in(pc_in),.PC_out(pc_out),.reset(reset));
+		 PC pc(.PC_in(pc_in),.PC_out(pc_out),.reset(reset),.clk(clk));
 		 Instruction_Mem I_Mem (.IR(IR),.PC(pc_out),.clk(clk));
+		 Adder Add_pc (.SUM(pc_next), .A(pc_out), .B(32'd 4));
 		 
-		 mux2_5 I_Mem_Reg(.out(rt_td_mux),.in1(rt),.in2(rd),.sel(RegDst));
+		 mux2_5 I_Mem_Reg(.out(rt_rd_mux),.in1(rt),.in2(rd),.sel(RegDst));
 		 regFile reg_file (.ReadData1(ReadData1), .ReadData2(ReadData2), 
 								 .RegWrite(RegWrite), .Rs(rs), .Rt(rt), .Rd(rd), 
 								 .data(D_Mem_ALU_mux_out),.clk(clk));
@@ -65,16 +66,17 @@ module MIPS(clk,reset);
 		 
 		 mux2 Reg_ALU1(.out(Reg_ALU_mux1_out),.in1(I_imm_sign_extend),
 							.in2(I_imm_zero_extend),.sel(Alu_src[0]));
-		 mux2 Reg_ALU2(.out(Reg_ALU_mux2_out),.in1(Reg_ALU_mux2_out),.in2(ReadData2),
+		 mux2 Reg_ALU2(.out(Reg_ALU_mux2_out),.in1(Reg_ALU_mux1_out),.in2(ReadData2),
 							.sel(Alu_src[1]));
 		 ALU_Control ALU_CU (.Alu_control(ALU_CU_out), .Alu_op(Alu_op), 
 		 							.funct_field(funct));
 		 
 		 ALU ALU (.Zero(ALU_Zero),.Alu_result(ALU_result),.A(ALU_A),.B(ALU_B)
 						,.Alu_control(ALU_CU_out));
-			
-		 mux2 Branch_PC (.out(B_mux_out),.in1( (I_imm_sign_extend<<2) + 4), 
-							  .in2(pc_next), .sel(B_sel));
+		
+		 Adder B_PC (.SUM(B_PC_ADD_out),.A(pc_next),.B(I_imm_sign_extend<<2));
+		 mux2 Branch_PC (.out(B_mux_out),.in1(pc_next), 
+							  .in2(B_PC_ADD_out), .sel(B_sel));
 		 mux2 J_PC (.out(pc_out), .in1(B_mux_out), .in2(J_imm_address),.sel(J));
 		 
 		 Data_Mem D_Mem ( .ReadData(D_Mem_out), .Address(D_Mem_Address), 

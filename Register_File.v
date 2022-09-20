@@ -26,4 +26,6 @@ module regFile(ReadData1, ReadData2, RegWrite, Rs, Rt, Rd, data,clk);
 				regFile[Rd] <= data;
 			end
 	end
+	assign ReadData1 = regFile[Rs];
+	assign ReadData2 = regFile[Rt];
 endmodule
