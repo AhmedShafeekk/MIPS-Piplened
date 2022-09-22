@@ -13,15 +13,22 @@ RegFile[29] 					|| ==> $sp
 RegFile[30] 					|| ==> $fp
 RegFile[31] 					|| ==> $ra
 */
-module regFile(ReadData1, ReadData2, RegWrite, Rs, Rt, Rd, data,clk);
+module regFile(ReadData1, ReadData2, RegWrite, Rs, Rt, Rd, data,reset);
 	output [31:0] ReadData1, ReadData2;
-	input [4:0] Rs, Rt, Rd; 
-	input RegWrite,clk;
+	input [4:0] Rs, Rt, Rd;
+	input RegWrite,reset;
 	input [31:0] data;
-	reg [31:0] regFile [31:0];
-	always @(posedge clk)
+	parameter length = 32;
+	reg [31:0] regFile [0:length - 1];
+	
+	integer k;
+	always @(*)
 	begin
-		if (RegWrite)
+		if (reset) 
+			begin
+				for (k=0;k<length;k=k+1) regFile[k]<=0;
+			end
+		else if (RegWrite)
 			begin
 				regFile[Rd] <= data;
 			end

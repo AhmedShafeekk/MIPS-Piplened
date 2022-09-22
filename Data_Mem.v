@@ -1,14 +1,20 @@
 `timescale 1ns / 1ps
 
-module Data_Mem( ReadData, Address, WriteData, MemRead, MemWrite,clk);
+module Data_Mem( ReadData, Address, WriteData, MemRead, MemWrite,reset);
 		output reg [31:0] ReadData;
-		input MemRead, MemWrite,clk;
+		input MemRead, MemWrite,reset;
 		input [31:0] Address, WriteData;
+		parameter length=100;
+		reg [31:0] Data_MEM [0:length - 1];
+		integer k;
 		
-		reg [31:0] Data_MEM [10:0];
-		
-		always @(posedge clk)
+		always @(*)
 			begin
+				if (reset) 
+					begin
+						for(k=0;k<length;k=k+1)
+							Data_MEM[k]<=0;
+					end
 				if (MemWrite)
 					Data_MEM[Address]<=WriteData;	
 				else
@@ -16,7 +22,7 @@ module Data_Mem( ReadData, Address, WriteData, MemRead, MemWrite,clk);
 					if (MemRead)
 						ReadData <= Data_MEM[Address];
 					else 
-						ReadData<= 32'b ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ;	
+						ReadData<= 32'h ZZZZZZZZ;	
 				 end
 			end
 			
