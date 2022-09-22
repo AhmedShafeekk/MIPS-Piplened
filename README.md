@@ -1,1 +1,1 @@
-# MIPS-Piplened
+# Single Cycle MIPS processor
