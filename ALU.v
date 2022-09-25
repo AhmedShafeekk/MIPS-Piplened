@@ -25,6 +25,7 @@ module ALU(Zero,Alu_result,A,B,Alu_control,reset);
 		
 		always @(*)
 			begin
+			#0.1;  //1ps delay to avoid simulation infinite loop error
 			if (reset) Alu_result<= 32'h ZZZZZZZZ;
 			else
 			case (Alu_control)

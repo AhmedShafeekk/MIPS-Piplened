@@ -105,7 +105,7 @@ module Control_Unit( RegDst, J, Beq, Bneq, MemRead, MemtoReg, Alu_op,MemWrite,Al
 				RegWrite<=1;
 				end
 //subi
-			p.addi_opcode: 
+			p.subi_opcode: 
 				begin 
 				RegDst<=0;
 				J<=0;

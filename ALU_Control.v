@@ -23,7 +23,7 @@ module ALU_Control(Alu_control, Alu_op, funct_field,reset);
 		if (reset) Alu_control<=0; 
 		else
 			case (Alu_op)
-				p.Aluop_add:  Alu_control <= p.Alu_add;
+				p.Aluop_add:   Alu_control <= p.Alu_add;
 				p.Aluop_sub:	Alu_control <= p.Alu_sub;	
 				p.Aluop_R:
 					begin

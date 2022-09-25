@@ -8,7 +8,7 @@ module Instruction_Mem(IR,PC,reset);
 		reg [31:0] Inst_MEM [0:length - 1];
 		
 		integer i;
-	initial  $readmemh("program1.txt", Inst_MEM);
+	initial  $readmemh("program3.txt", Inst_MEM);
 	always @(PC)
 		begin
 				if (reset) IR<= Inst_MEM[0];
